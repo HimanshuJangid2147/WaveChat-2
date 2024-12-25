@@ -1,0 +1,24 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chat bubble with wave -->
+  <path 
+    d="M160 80c0-33.137-26.863-60-60-60S40 46.863 40 80c0 33.137 26.863 60 60 60 8.742 0 17.034-1.869 24.537-5.226L160 150l-15.226-35.463C153.397 105.064 160 93.305 160 80z" 
+    fill="#015871"
+  />
+  
+  <!-- Wave inside chat bubble -->
+  <path 
+    d="M60 90 Q80 70, 100 90 Q120 110, 140 90" 
+    stroke="#64fff2" 
+    stroke-width="6" 
+    fill="none"
+  />
+  
+  <!-- Second wave for depth -->
+  <path 
+    d="M60 75 Q80 55, 100 75 Q120 95, 140 75" 
+    stroke="#5f857b" 
+    stroke-width="4" 
+    fill="none"
+    opacity="0.6"
+  />
+</svg>

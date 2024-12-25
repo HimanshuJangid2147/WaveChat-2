@@ -1,0 +1,64 @@
+/* Body Styling */
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  background: linear-gradient(to bottom, #0a2a3d, #051822); /* Darker gradient for depth */
+}
+
+/* Ocean container */
+.ocean {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 12%; /* Ocean height is only 5% */
+  overflow: hidden; /* Ensure no scrolling is caused by waves */
+  z-index: 1;
+}
+
+/* Common Wave Styling */
+.wave {
+  position: absolute;
+  bottom: 0;
+  width: 200%; /* Larger width for smooth scrolling */
+  height: 100%; /* Waves will now fill the ocean container vertically */
+  background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg') repeat-x;
+  transform: translate3d(0, 0, 0);
+  animation: waveMovement 10s linear infinite;
+  opacity: 0.7;
+}
+
+/* Individual Waves */
+.wave1 {
+  animation-duration: 8s; /* Faster wave */
+}
+
+.wave2 {
+  animation-duration: 12s; /* Slower wave */
+  opacity: 0.5; /* Less visible for layering */
+  bottom: -10px; /* Slight offset for depth */
+}
+
+/* Keyframes for Wave Animation */
+@keyframes waveMovement {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* Scrolls the waves horizontally */
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .wave {
+    height: 80%; /* Adjust wave height for mid-sized screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .wave {
+    height: 70%; /* Adjust wave height for smaller screens */
+  }
+}
