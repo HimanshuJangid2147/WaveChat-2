@@ -1,67 +1,57 @@
-import { useState, useEffect } from "react";
-import { useAuthStore } from "../store/useAuthStore.js";
-import { useParams, useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuthStore } from '../store/useAuthStore';
+import { Loader2, Lock } from 'lucide-react';
 
-const ResetPasswordPage = () => {
-  const [formData, setFormData] = useState({
-    password: "",
-    confirmPassword: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const { verifyToken, resetPassword, isResettingPassword, isTokenValid } = useAuthStore();
+export default function ResetPassword() {
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const { token } = useParams();
   const navigate = useNavigate();
+  
+  const { 
+    resetPassword, 
+    isResetingPassword,
+    verifyResetToken,
+    isTokenValid
+  } = useAuthStore();
 
   useEffect(() => {
-    const checkToken = async () => {
-      try {
-        await verifyToken(token);
-      } catch (error) {
-        console.error(error);
-        toast.error("Invalid or expired token. Please request a new reset link.");
-        navigate("/forgot-password");
-      }
-    };
-
-    if (token) checkToken();
-  }, [token, verifyToken, navigate]);
-
-  const validateForm = () => {
-    if (!formData.password.trim()) {
-      return toast.error("Password is required.");
-    }
-    if (formData.password.length < 8) {
-      return toast.error("Password must be at least 8 characters long.");
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return toast.error("Passwords do not match.");
-    }
-    return true;
-  };
+    verifyResetToken(token);
+  }, [token, verifyResetToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      try {
-        await resetPassword(token, formData.password); // Passing the token and new password
-        toast.success("Password reset successfully!");
-        navigate("/login");
-      } catch (error) {
-        toast.error(error.message || "Failed to reset password.");
-      }
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      await resetPassword(token, password);
+      navigate('/login');
+    } catch (err) {
+      setError('Failed to reset password. Please try again.');
+      console.error(err);
     }
   };
 
   if (!isTokenValid) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-[#002233] to-[#001522] font-redhat">
-        <div className="text-center text-[#cdfdff]">
-          <h1 className="text-2xl font-semibold">Invalid or Expired Token</h1>
-          <p className="text-sm mt-2">
-            Please request a new password reset link.
-          </p>
+        <div className="w-full max-w-md bg-[#0a2a3d] p-8 rounded-lg shadow-lg">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-400">Invalid or Expired Link</h2>
+            <p className="mt-2 text-[#cdfdff]">Please request a new password reset link.</p>
+          </div>
         </div>
       </div>
     );
@@ -69,93 +59,75 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-[#002233] to-[#001522] font-redhat">
-      <div className="w-full max-w-md p-6 rounded-lg bg-[#0a2a3d] border border-slate-600">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-semibold text-[#cdfdff]">Reset Password</h1>
-          <p className="text-sm text-[#cdfdff]/70">Enter your new password below</p>
+      <div className="w-full max-w-md bg-[#0a2a3d] p-8 rounded-lg shadow-lg">
+        <div className="text-center mb-8">
+          <div className="flex flex-col items-center gap-2 group">
+            <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <Lock className="size-6 text-primary" color="#9afcff" />
+            </div>
+            <h1 className="text-2xl font-semibold mt-2 text-[#cdfdff]">Reset Password</h1>
+            <p className="text-base-content/60 text-[#cdfdff]">Enter your new password</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Password */}
           <div className="form-control">
             <label className="label" htmlFor="password">
-              <span className="label-text text-[#cdfdff]">New Password:</span>
+              <span className="label-text font-small text-[#cdfdff]">New Password:</span>
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="size-5 text-base-content/40" color="#9afcff" />
-              </div>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                className="input input-bordered w-full pl-10 rounded-lg bg-transparent text-slate-400 border border-slate-600 p-2"
-                placeholder="New Password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="size-5 text-base-content/40" color="#9afcff" />
-                ) : (
-                  <Eye className="size-5 text-base-content/40" color="#9afcff" />
-                )}
-              </button>
-            </div>
+            <input
+              type="password"
+              id="password"
+              className="input input-bordered w-full rounded-lg bg-transparent text-slate-400 border border-slate-600 p-2"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
 
-          {/* Confirm Password */}
           <div className="form-control">
             <label className="label" htmlFor="confirmPassword">
-              <span className="label-text text-[#cdfdff]">Confirm Password:</span>
+              <span className="label-text font-small text-[#cdfdff]">Confirm Password:</span>
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="size-5 text-base-content/40" color="#9afcff" />
-              </div>
-              <input
-                id="confirmPassword"
-                type={showPassword ? "text" : "password"}
-                className="input input-bordered w-full pl-10 rounded-lg bg-transparent text-slate-400 border border-slate-600 p-2"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="size-5 text-base-content/40" color="#9afcff" />
-                ) : (
-                  <Eye className="size-5 text-base-content/40" color="#9afcff" />
-                )}
-              </button>
-            </div>
+            <input
+              type="password"
+              id="confirmPassword"
+              className="input input-bordered w-full rounded-lg bg-transparent text-slate-400 border border-slate-600 p-2"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
           </div>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full rounded-lg py-2 px-4 text-[#cdfdff] border border-slate-400
-              hover:bg-transparent bg-[#001f33] focus:outline-none focus:ring-2 focus:ring-primary/40
-              disabled:cursor-not-allowed"
-            disabled={isResettingPassword}
-          >
-            {isResettingPassword ? (
-              <Loader2 className="animate-spin size-5 mx-auto" color="#9afcff" />
-            ) : (
-              "Reset Password"
-            )}
-          </button>
+          {error && (
+            <div className="text-red-400 text-sm text-center">{error}</div>
+          )}
+
+          <div className="flex flex-col gap-4">
+            <button
+              type="submit"
+              disabled={isResetingPassword}
+              className="w-full rounded-lg py-2 px-4 text-[#cdfdff] border border-slate-400
+                hover:bg-transparent bg-[#0a2a3d] focus:outline-none focus:ring-2 focus:ring-primary/40
+                disabled:cursor-not-allowed"
+            >
+              {isResetingPassword ? (
+                <Loader2 className="animate-spin size-5 mx-auto" color="#9afcff" />
+              ) : (
+                'Reset Password'
+              )}
+            </button>
+            <div className="text-center text-[#cdfdff]">
+              <a
+                href="/login"
+                className="font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-2"
+              >
+                Back to Login
+              </a>
+            </div>
+          </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default ResetPasswordPage;
+}

@@ -1,11 +1,12 @@
 // import React from 'react';
 import { MessageSquare, Mail, Lock, Eye, Link, EyeOff, Loader2 } from 'lucide-react';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from '../components/AuthImagePattern';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [ formData, setFormData ] = useState({
     email: "",
     username: "",
@@ -14,9 +15,33 @@ const LoginPage = () => {
 
   const { login, isLoggingIn } = useAuthStore();
 
+  useEffect(() => {
+    const savedCredentials = localStorage.getItem('rememberedCredentials');
+    if (savedCredentials) {
+      const { email, rememberMe } = JSON.parse(savedCredentials);
+      setFormData(prev => ({ ...prev, email }));
+      setRememberMe(rememberMe);
+    }
+  }, []);
+
   const handleOnSubmit = (e) => {
     e.preventDefault();
+    if (rememberMe) {
+      localStorage.setItem('rememberedCredentials', JSON.stringify({
+        email: formData.email,
+        rememberMe
+      }));
+    } else {
+      localStorage.removeItem('rememberedCredentials');
+    }
     login(formData);
+  };
+
+  const handleRememberMe = (e) => {
+    setRememberMe(e.target.checked);
+    if (!e.target.checked) {
+      localStorage.removeItem('rememberedCredentials');
+    }
   };
 
   return (
@@ -97,6 +122,8 @@ const LoginPage = () => {
                 <input
                   type="checkbox"
                   className="checkbox checkbox-primary"
+                  checked={rememberMe}
+                  onChange={handleRememberMe}
                 />
                 <span className="text-sm text-[#cdfdff]">Remember me</span>
               </label>

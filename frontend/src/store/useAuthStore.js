@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 export const useAuthStore = create((set) => ({
   authUser: null,
+  isTokenValid: false,
   isCheckingAuth: true,
   isSigningUp: false,
   isLoggingIn: false,
@@ -11,18 +12,17 @@ export const useAuthStore = create((set) => ({
   isSubimmiting: false,
   isResetingPassword: false,
   isVerifyingResetToken: false,
-//   isLoggingOut: false,
-
+  
   checkAuth: async () => {
-      try {
-        const res = await axiosInstance.get("/auth/check");
-        set({ authUser: res.data, isCheckingAuth: false });
-      } catch (error) {
-        console.log("Error in checkAuth:", error);
-        set({ authUser: null, isCheckingAuth: false });
-      } finally {
-        set({ isCheckingAuth: false });
-      }
+    try {
+      const res = await axiosInstance.get("/auth/check");
+      set({ authUser: res.data, isCheckingAuth: false });
+    } catch (error) {
+      console.log("Error in checkAuth:", error);
+      set({ authUser: null, isCheckingAuth: false });
+    } finally {
+      set({ isCheckingAuth: false });
+    }
   },
 
   signup: async (data) => {
@@ -31,14 +31,13 @@ export const useAuthStore = create((set) => ({
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
       toast.success("Account created successfully!");
-
     } catch (error) {
       toast.error(error.response.data.message);
       console.log("Error in signup:", error);
     } finally {
       set({ isSigningUp: false });
     }
-  },  
+  },
 
   login: async (data) => {
     set({ isLoggingIn: true });
@@ -47,18 +46,18 @@ export const useAuthStore = create((set) => ({
       set({ authUser: res.data });
       toast.success("Logged in successfully");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error("Invalid email or password", error.response.data.message);
     } finally {
       set({ isLoggingIn: false });
     }
   },
   logout: async () => {
     try {
-        await axiosInstance.post("/auth/logout");
-        set({ authUser: null });
-        toast.success("Logged out successfully");
+      await axiosInstance.post("/auth/logout");
+      set({ authUser: null });
+      toast.success("Logged out successfully");
     } catch (error) {
-        toast.error(error.response.data.message);
+      toast.error(error.response.data.message);
     }
   },
 
@@ -90,33 +89,40 @@ export const useAuthStore = create((set) => ({
   verifyResetToken: async (token) => {
     set({ isVerifyingResetToken: true });
     try {
-      await axiosInstance.get(`/auth/verify-reset-token/:token/${token}`);
-      toast.success("Reset token verified successfully");
+      const response = await axiosInstance.get(
+        `/auth/verify-reset-token/${token}`
+      );
+      const data = response.data;
+
+      if (data.valid) {
+        set({ isTokenValid: true });
+      } else {
+        set({ isTokenValid: false });
+      }
     } catch (error) {
-      toast.error(error.response.data.message);
+      set({ isTokenValid: false });
+      console.error("Error verifying token:", error);
     } finally {
       set({ isVerifyingResetToken: false });
     }
   },
 
-  resetPassword: async (data) => {
+  resetPassword: async (token, newPassword) => {
     set({ isResetingPassword: true });
     try {
-      await axiosInstance.post("/auth/reset-password", data);
-      toast.success("Password reset successfully. Redirecting to login...");
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
+      await axiosInstance.post("/auth/reset-password", {
+        token,
+        newPassword,
+      });
+      toast.success("Password reset successfully.");
+      return true;
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.error || "Failed to reset password.");
+      throw error;
     } finally {
       set({ isResetingPassword: false });
     }
   },
-
-
-
-  // isLoggedOut: false, // This is not used in this example, but it's a good idea to keep track of the logout status.
 
   // other relevant state and actions...
 }));

@@ -160,6 +160,22 @@ const transporter = nodemailer.createTransport({
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+
+    // Validate email presence
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: "Invalid email format",
+      });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -176,10 +192,9 @@ export const forgotPassword = async (req, res) => {
 
     // Send email
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-    await transporter.sendMail({
-      from: `"Wave-Chat" <${process.env.EMAIL_USER}>`,
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const mailOptions = {
+      rom: `"Wave-Chat" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Password Reset Request",
       html: `
@@ -268,51 +283,87 @@ export const forgotPassword = async (req, res) => {
         </p>
     </div>
 </div>
-
-
     `,
-    });
+    };
 
-    res.json({
-      message: "If an account exists, a reset link will be sent.",
-      token: resetToken,
-    });
+    // Send email
+    try {
+      await transporter.sendMail(mailOptions);
+
+      // Log success (consider removing in production)
+      console.log("Password reset email sent successfully to:", email);
+
+      res.status(200).json({
+        message:
+          "If an account exists, a password reset link will be sent to your email",
+        // Only include debug info in development
+        ...(process.env.NODE_ENV === "development" && {
+          debug: {
+            resetToken,
+            resetLink,
+          },
+        }),
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+
+      // Remove the reset token if email fails
+      user.resetToken = undefined;
+      user.resetTokenExpiry = undefined;
+      await user.save();
+
+      return res.status(500).json({
+        error: "Failed to send password reset email. Please try again later.",
+      });
+    }
   } catch (error) {
     console.error("Password reset error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({
+      error: "An unexpected error occurred. Please try again later.",
+    });
   }
 };
 
 export const verifyResetToken = async (req, res) => {
   try {
     const { token } = req.params;
-    // Check if token exists
+    console.log("Received token for verification:", token); // Add this for debugging
+
     if (!token) {
-      return res.status(400).json({ 
-        error: 'Reset token is required' 
+      console.log("No token provided in request");
+      return res.status(400).json({
+        error: "Reset token is required",
+        valid: false,
       });
     }
-    // Find user with non-expired token
+
     const user = await User.findOne({
       resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }  // Check if token hasn't expired
+      resetTokenExpiry: { $gt: Date.now() },
     });
+    console.log("User found:", user ? "Yes" : "No"); // Add this for debugging
+    
+    if (user) {
+      console.log("Token expiry:", user.resetTokenExpiry); // Add this for debugging
+      console.log("Current time:", Date.now()); // Add this for debugging
+    }
 
     if (!user) {
-      return res.status(400).json({ 
-        error: 'Invalid or expired reset token' 
+      return res.status(400).json({
+        error: "Invalid or expired reset token",
+        valid: false,
       });
     }
-    // Valid token found
-    res.json({ 
-      valid: true,
-      email: user.email  // Optionally return masked email for UI feedback
-    });
 
+    res.json({
+      valid: true,
+      email: user.email,
+    });
   } catch (error) {
-    console.error('Token verification error:', error);
-    res.status(500).json({ 
-      error: 'Failed to verify reset token' 
+    console.error("Token verification error:", error);
+    res.status(500).json({
+      error: "Failed to verify reset token",
+      valid: false,
     });
   }
 };
@@ -320,6 +371,13 @@ export const verifyResetToken = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: "Reset token and new password are required",
+      });
+    }
+
     const user = await User.findOne({
       resetToken: token,
       resetTokenExpiry: { $gt: Date.now() },
@@ -331,14 +389,25 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // Update password and clear reset token
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
+    // Clear reset token fields
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
+
     await user.save();
 
-    res.json({ message: "Password successfully reset" });
+    res.json({
+      message: "Password reset successful"
+    });
+
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Reset password error:", error);
+    res.status(500).json({
+      error: "Failed to reset password"
+    });
   }
 };
+ 

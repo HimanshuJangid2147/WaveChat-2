@@ -42,7 +42,7 @@ const App = () => {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={ authUser ? <ProfilePage /> : <Navigate to="/login"/> } />
         <Route path="/forgot-password" element={ !authUser ? <ForgotPasswordPage /> : <Navigate to="/login" />} />
-        <Route path="/reset-password" element={<ResetPasswordPage /> } />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage /> } />
       </Routes>   
       <Toaster />
     </div>
