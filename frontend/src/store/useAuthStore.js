@@ -9,6 +9,7 @@ export const useAuthStore = create((set) => ({
   isSigningUp: false,
   isLoggingIn: false,
   isUpdatingProfile: false,
+  isChangingUsername: false,
   isSubimmiting: false,
   isResetingPassword: false,
   isVerifyingResetToken: false,
@@ -64,13 +65,57 @@ export const useAuthStore = create((set) => ({
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
-      const res = await axiosInstance.post("/auth/update-profile", data);
-      set({ authUser: res.data });
+      const res = await axiosInstance.put("/auth/update-profile", data);
+      console.log("Server response:", res.data);
+
+      set({ 
+        authUser: res.data.updatedUser, 
+        isUpdatingProfile: false
+      });
+
       toast.success("Profile updated successfully");
+      return res.data.updatedUser;    
     } catch (error) {
-      toast.error(error.response.data.message);
+      console.log("Update Error:", error?.response?.data);
+      toast.error(error?.response?.data?.error || "Error updating profile");
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  changeUsername: async (newUsername) => {
+    set({ isChangingUsername: true });
+    try {
+          // Check if we have a valid auth user first
+    const currentUser = useAuthStore.getState().authUser;
+    if (!currentUser) {
+      throw new Error("You must be logged in to change username");
+    }
+
+      const res = await axiosInstance.put("/auth/change-username", {
+        username: newUsername.trim(),
+      });
+
+      // Update the auth user state with the new data
+      set({ 
+        authUser: res.data,
+        isChangingUsername: false 
+      });
+
+      toast.success("Username updated successfully");
+      return res.data;
+    } catch (error) {
+      const errorMessage = error?.response?.data?.error || "Failed to update username";
+      toast.error(errorMessage);
+      
+      // Throw the error so we can handle it in the component
+      throw {
+        message: errorMessage,
+        field: error?.response?.data?.field || 'username',
+        status: error?.response?.status
+      };
+    } finally {
+      set({ isChangingUsername: false });
     }
   },
 

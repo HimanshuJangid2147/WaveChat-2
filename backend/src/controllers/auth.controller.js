@@ -113,27 +113,33 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
-    const userId = req.body._id;
+    const { profilePic, fullName, email } = req.body;
+    const userId = req.user._id;
 
-    if (!profilePic) {
-      return res.status(400).json({ error: "Profile Pic is required" });
+    // Create update object with only provided fields
+    const updateData = {};
+    if (fullName) updateData.fullName = fullName;
+    if (email) updateData.email = email;
+
+    // Handle profile pic upload if provided
+    if (profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updateData.profilePic = uploadResponse.secure_url;
     }
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    // Only update if there are changes
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: "No fields to update" });
     }
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url },
-      { new: true }
-    );
-    res
-      .status(200)
-      .json({ message: "Profile picture updated successfully", updatedUser });
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    }).select("-password");
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      updatedUser,
+    });
   } catch (error) {
     console.log("Error in Update Profile:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -342,7 +348,7 @@ export const verifyResetToken = async (req, res) => {
       resetTokenExpiry: { $gt: Date.now() },
     });
     console.log("User found:", user ? "Yes" : "No"); // Add this for debugging
-    
+
     if (user) {
       console.log("Token expiry:", user.resetTokenExpiry); // Add this for debugging
       console.log("Current time:", Date.now()); // Add this for debugging
@@ -392,7 +398,7 @@ export const resetPassword = async (req, res) => {
     // Hash new password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
-    
+
     // Clear reset token fields
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
@@ -400,14 +406,104 @@ export const resetPassword = async (req, res) => {
     await user.save();
 
     res.json({
-      message: "Password reset successful"
+      message: "Password reset successful",
     });
-
   } catch (error) {
     console.error("Reset password error:", error);
     res.status(500).json({
-      error: "Failed to reset password"
+      error: "Failed to reset password",
     });
   }
 };
- 
+
+export const changeUsername = async (req, res) => {
+  try {
+    // Add explicit check for req.user
+    if (!req.user || !req.user._id) {
+      console.log("User not authenticated:", req.user);
+      return res.status(401).json({
+        error: "You must be logged in to change username",
+        field: "username",
+      });
+    }
+
+    const { username } = req.body;
+    const userId = req.user._id;
+
+    // Log the values for debugging
+    console.log("Attempting username change.");
+
+    // Validate username
+    if (!username) {
+      console.log("Validation failed: Username is required");
+      return res.status(400).json({
+        error: "Username is required",
+        field: "username",
+      });
+    }
+    // Trim the username
+    const normalizedUsername = username;
+
+    // Username length and format validation
+    if (normalizedUsername.length < 3) {
+      return res.status(400).json({
+        error: "Username must be at least 3 characters long",
+        field: "username",
+      });
+    }
+
+    // Check if username contains valid characters (letters, numbers, underscores)
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(normalizedUsername)) {
+      console.log("Validation failed: Username can only contain letters, numbers, and underscores");
+      return res.status(400).json({
+        error: "Username can only contain letters, numbers, and underscores",
+        field: "username",
+      });
+    }
+
+    // Check if username is already taken
+    const existingUser = await User.findOne({
+      username: normalizedUsername,
+      _id: { $ne: userId },
+    });
+
+    if (existingUser) {
+      console.log("Validation failed: Username is already taken");
+      return res.status(409).json({
+        error: "Username is already taken",
+        field: "username",
+      });
+    }
+
+    // Update the username
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        username: normalizedUsername,
+        updatedAt: Date.now(),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
+
+    console.log("Validation passed: Username updated successfully");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        error: "User not found",
+        field: "username",
+      });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error in changeUsername controller:", error.message);
+    res.status(500).json({
+      error: "Failed to update username. Please try again.",
+      field: "username",
+    });
+  }
+};
