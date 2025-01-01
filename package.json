@@ -10,13 +10,14 @@
     "type": "git",
     "url": "git+https://github.com/HimanshuJangid2147/WaveChat-2.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["chat", "real-time", "mern", "socket.io", "wavechat"],
+  "author": "Himanshu Jangid",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/HimanshuJangid2147/WaveChat-2/issues"
   },
   "homepage": "https://github.com/HimanshuJangid2147/WaveChat-2#readme",
-  "description": ""
+  "description": "WaveChat: A real-time chat application built using the MERN stack with Socket.IO for real-time messaging and secure JWT-based authentication."
+
 }
