@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
+import { formatMessageTime } from "../lib/utils";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
-import { useAuthStore } from "../store/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
+import NoMessages from "./NoMessages";
 
 const ChatContainer = () => {
-  const { messages, selectedUser, isMessageLoading, getMessages } = useChatStore();
+  const { messages, selectedUser, isMessageLoading, getMessages, suscribeToNewMessages,  unSubscribeFromMessages} = useChatStore();
   const { authUser } = useAuthStore();
   const messagesEndRef = useRef(null);
   const messageContainerRef = useRef(null);
@@ -75,10 +76,11 @@ const ChatContainer = () => {
 
   // Fetch messages when selected user changes
   useEffect(() => {
-    if (selectedUser) {
       getMessages(selectedUser._id);
-    }
-  }, [selectedUser._id, getMessages, selectedUser]);
+
+      suscribeToNewMessages();
+      return () => unSubscribeFromMessages();
+  }, [selectedUser._id, getMessages, suscribeToNewMessages, unSubscribeFromMessages]);
 
   const containerStyle = "flex flex-col h-full max-h-full";
   const messageContainerStyle = `
@@ -111,42 +113,48 @@ const ChatContainer = () => {
           WebkitOverflowScrolling: 'touch'
         }}
       >
-        {messages.map((message) => (
-          <div
-            key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-          >
-            <div className="chat-image avatar">
-              <div className="w-10 rounded-full ring-2 ring-[#00141f]/50">
-                <img 
-                  src={message.senderId === authUser._id ? authUser.profilePic || "/avatar.png" : selectedUser.profilePic || "/avatar.png" } 
-                  alt="Avatar"
-                  className="object-cover" 
-                />
+        {messages.length > 0 ? (
+          <>
+            {messages.map((message) => (
+              <div
+                key={message._id}
+                className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+              >
+                <div className="chat-image avatar">
+                  <div className="w-10 rounded-full ring-2 ring-[#00141f]/50">
+                    <img 
+                      src={message.senderId === authUser._id ? authUser.profilePic || "/avatar.png" : selectedUser.profilePic || "/avatar.png" } 
+                      alt="Avatar"
+                      className="object-cover" 
+                    />
+                  </div>
+                </div>
+                <div className="chat-header mb-1">
+                  <time className="text-xs opacity-50 ml-1 text-gray-300">
+                    {formatMessageTime(message.createdAt)}
+                  </time>
+                </div>
+                <div className={`chat-bubble ${
+                  message.senderId === authUser._id 
+                    ? "bg-[#0a2a3d]/90 backdrop-blur-sm" 
+                    : "bg-[#00141f]/90 backdrop-blur-sm"
+                }`}>
+                  {message.image && (
+                    <img 
+                      src={message.image} 
+                      alt="Message image" 
+                      className="max-w-[200px] w-full rounded-md mb-2"
+                    />
+                  )}
+                  {message.text && <p>{message.text}</p>}
+                </div>
               </div>
-            </div>
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1 text-gray-300">
-                {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-            <div className={`chat-bubble ${
-              message.senderId === authUser._id 
-                ? "bg-[#0a2a3d]/90 backdrop-blur-sm" 
-                : "bg-[#00141f]/90 backdrop-blur-sm"
-            }`}>
-              {message.image && (
-                <img 
-                  src={message.image} 
-                  alt="Message image" 
-                  className="max-w-[200px] w-full rounded-md mb-2"
-                />
-              )}
-              {message.text && <p>{message.text}</p>}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        ) : (
+          <NoMessages username={selectedUser.username} />
+        )}
       </div>
       <MessageInput scrollToBottom={() => {
         scrollToBottom();

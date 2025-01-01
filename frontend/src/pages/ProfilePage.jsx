@@ -144,6 +144,14 @@ const ProfilePage = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+  // Add size validation
+  const maxSize = 100 * 1024; // 100KB
+  if (file.size > maxSize) {
+    toast.error(`Image size must be less than 100KB. Current size: ${(file.size / 1024).toFixed(1)}KB`);
+    e.target.value = ''; // Reset input
+    return;
+  }
+
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {

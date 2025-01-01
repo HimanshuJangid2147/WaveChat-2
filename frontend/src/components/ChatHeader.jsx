@@ -1,10 +1,17 @@
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { useEffect } from "react";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, subscribeToProfileUpdates, unsubscribeFromProfileUpdates } = useChatStore();
   const { onlineUsers } = useAuthStore();
+
+useEffect(() => {
+  subscribeToProfileUpdates();
+  return () => unsubscribeFromProfileUpdates();
+}, [subscribeToProfileUpdates, unsubscribeFromProfileUpdates]);
+
 
   return (
     <div className="p-4 border-b border-[#00141f]">

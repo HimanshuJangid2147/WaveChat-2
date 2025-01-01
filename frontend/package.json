@@ -17,6 +17,7 @@
     "react-hot-toast": "^2.4.1",
     "react-password-strength-bar": "^0.4.1",
     "react-router-dom": "^7.0.2",
+    "socket.io-client": "^4.8.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

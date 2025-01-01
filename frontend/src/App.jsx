@@ -15,8 +15,10 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import { useSettingsStore } from "./store/useSettingsStore.js";
 
 const App = () => {
-  const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
   const { fetchSettings } = useSettingsStore();
+
+  console.log({ onlineUsers });
 
   useEffect(() => {
     checkAuth();
