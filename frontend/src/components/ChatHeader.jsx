@@ -14,19 +14,19 @@ useEffect(() => {
 
 
   return (
-    <div className="p-4 border-b border-[#00141f]">
+    <div className="p-2 md:p-4 border-b border-[#00141f]">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <div className="relative">
             <img 
               src={selectedUser.profilePic || "/avatar.png"} 
               alt={selectedUser.fullName}
-              className="size-10 rounded-full object-cover ring-2 ring-[#00141f]"
+              className="size-8 md:size-10 rounded-full object-cover ring-2 ring-[#00141f]"
             />
           </div>
           <div>
-            <h3 className="font-medium text-white">{selectedUser.fullName}</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-medium text:sm text-white">{selectedUser.fullName}</h3>
+            <p className="text-xs md:text-sm text-gray-400">
               {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
             </p>
           </div>

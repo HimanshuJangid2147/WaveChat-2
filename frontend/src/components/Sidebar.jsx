@@ -5,10 +5,27 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users, Search } from "lucide-react";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUserLoading, subscribeToProfileUpdates, unsubscribeFromProfileUpdates } = useChatStore();
+  const {
+    getUsers,
+    users,
+    selectedUser,
+    setSelectedUser,
+    isUserLoading,
+    subscribeToProfileUpdates,
+    unsubscribeFromProfileUpdates,
+    unreadMessages,
+    setMessageAsRead,
+    suscribeToNewMessages,
+    unSubscribeFromMessages
+  } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    suscribeToNewMessages();
+    return () => unSubscribeFromMessages();
+  }, [suscribeToNewMessages, unSubscribeFromMessages]);
 
   useEffect(() => {
     getUsers();
@@ -21,15 +38,20 @@ const Sidebar = () => {
   }, [subscribeToProfileUpdates, unsubscribeFromProfileUpdates]);
 
   const filteredUsers = users
-    .filter((user) => showOnlineOnly ? onlineUsers.includes(user._id) : true)
-    .filter((user) => 
+    .filter((user) => (showOnlineOnly ? onlineUsers.includes(user._id) : true))
+    .filter((user) =>
       user.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+    setMessageAsRead(user._id);
+  };
 
   if (isUserLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full flex flex-col">
+    <aside className="min-h-screen flex flex-col">
       {/* Header Section */}
       <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -74,7 +96,7 @@ const Sidebar = () => {
         {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => handleUserSelect(user)}
             className={`
               w-full px-4 py-3 flex items-center gap-3 transition-colors
               hover:bg-[#002437] relative
@@ -91,13 +113,25 @@ const Sidebar = () => {
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#001824]" />
               )}
             </div>
-            
-            <div className="flex flex-col items-start">
+
+            <div className="flex flex-col items-start flex-1">
               <span className="text-white font-medium">{user.username}</span>
-              <span className={`text-sm ${onlineUsers.includes(user._id) ? "text-emerald-500" : "text-gray-400"}`}>
+              <span
+                className={`text-sm ${
+                  onlineUsers.includes(user._id)
+                    ? "text-emerald-500"
+                    : "text-gray-400"
+                }`}
+              >
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </span>
             </div>
+
+            {unreadMessages[user._id] > 0 && (
+              <div className="bg-[#4a9eff] text-white text-xs font-medium rounded-full px-2 py-1 min-w-[20px]">
+                {unreadMessages[user._id]}
+              </div>
+            )}
           </button>
         ))}
 

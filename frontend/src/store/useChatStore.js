@@ -62,6 +62,15 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  setMessageAsRead: (userId) => {
+    set(state => ({
+      unreadMessages: {
+        ...state.unreadMessages,
+        [userId]: 0
+      }
+    }));
+  },
+
   getMessages: async (userId) => {
     set({ isMessageLoading: true });
     try {
@@ -98,17 +107,24 @@ export const useChatStore = create((set, get) => ({
   },
 
   suscribeToNewMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
-
     const socket = useAuthStore.getState().socket;
-
+  
     socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser =
-        newMessage.senderId === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
-
-      set({ messages: [...get().messages, newMessage] });
+      const { messages, selectedUser, unreadMessages } = get();
+      
+      // Update messages array if it's from selected user
+      if (selectedUser?._id === newMessage.senderId) {
+        set({ messages: [...messages, newMessage] });
+      } 
+      // Increment unread count for other users
+      else {
+        set({
+          unreadMessages: {
+            ...unreadMessages,
+            [newMessage.senderId]: (unreadMessages[newMessage.senderId] || 0) + 1
+          }
+        });
+      }
     });
   },
 

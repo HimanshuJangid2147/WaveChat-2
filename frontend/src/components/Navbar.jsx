@@ -2,6 +2,7 @@ import { LogOut, Settings, UserPen, LogIn, CircleEllipsis } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import logoPath from '../assets/Wave-Chat_svg.svg'
 
 const Navbar = () => {
   const { logout, authUser } = useAuthStore();
@@ -27,7 +28,7 @@ const Navbar = () => {
   `;
 
   return (
-    <header className="bg-gradient-to-b from-[#002233] to-[#001522] shadow-lg sticky w-full top-0 z-40 backdrop-blur-lg font-redhat border-b border-slate-600/10">
+    <header className="bg-gradient-to-b from-[#002233] to-[#001522] shadow-lg sticky w-full top-0 z-10 backdrop-blur-lg font-redhat border-b border-slate-600/10">
       {/* Removed max-w-7xl and mx-auto for full width */}
       <div className="h-16 flex items-center justify-between px-4">
         {/* Logo Section */}
@@ -37,9 +38,14 @@ const Navbar = () => {
         >
           <div className="h-10 w-10 flex items-center justify-center bg-[#0a2a3d] rounded-lg group-hover:bg-[#0a2a3d]/80 transition-colors">
             <img
-              src="./src/assets/Wave-Chat_svg.svg"
+              src={logoPath}
               alt="Wave Chat Logo"
               className="h-8 w-8"
+              onError={(e) => {
+                console.error("Logo failed to load:", e);
+                e.target.onerror = null; 
+                e.target.src = "/fallback-logo.svg"; 
+              }}
             />
           </div>
           <span className="text-lg font-semibold tracking-wide text-[#cdfdff] group-hover:text-[#9afcff] transition-colors">

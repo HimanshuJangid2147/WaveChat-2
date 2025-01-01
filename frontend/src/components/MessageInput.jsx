@@ -75,12 +75,12 @@ const MessageInput = () => {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2 p-2 md:p-4">
         <div className="flex-1 flex gap-2">
           <input
             type="text"
-            className="w-full px-4 py-2 rounded-lg bg-[#0a2a3d] border border-[#00141f] 
-            text-white placeholder-gray-400 focus:outline-none focus:border-[#4a9eff]"
+            className="w-full px-3 md:px-4 py-2 rounded-lg bg-[#0a2a3d] border border-[#00141f] 
+            text-white text-sm placeholder-gray-400 focus:outline-none focus:border-[#4a9eff]"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -95,7 +95,7 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex p-2 rounded-full hover:bg-[#0a2a3d] transition-colors
+            className={`flex p-2 rounded-full hover:bg-[#0a2a3d] transition-colors
               ${imagePreview ? "text-[#4a9eff]" : "text-gray-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >

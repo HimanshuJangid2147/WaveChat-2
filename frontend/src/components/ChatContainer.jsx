@@ -84,7 +84,7 @@ const ChatContainer = () => {
 
   const containerStyle = "flex flex-col h-full max-h-full";
   const messageContainerStyle = `
-    flex-1 overflow-y-auto p-4 space-y-4
+    flex-1 overflow-y-auto p-2 md:p-4 space-y-4
     scrollbar-thin scrollbar-thumb-[#0a2a3d] scrollbar-track-transparent
     scroll-smooth
   `;
