@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "nodemailer": "^6.9.16",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "wavechat-2": "file:.."
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
