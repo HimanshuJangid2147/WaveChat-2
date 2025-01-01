@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
-import { Mail, MessageSquare, User, Lock, SquareUserRound, EyeOff, Eye, Link, Loader2 } from "lucide-react";
+import { Link } from 'react-router-dom';
+import {
+  Mail,
+  MessageSquare,
+  User,
+  Lock,
+  SquareUserRound,
+  EyeOff,
+  Eye,
+  Link as LucideLink,
+  Loader2,
+} from "lucide-react";
 import AuthImagePattern from "../components/AuthImagePattern.jsx";
 import toast from "react-hot-toast";
 
@@ -54,9 +65,9 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-redhat">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-redhat relative z-10">
       {/* left side */}
-      <div className="flex flex-col justify-center items-center p-6 sm:p-4 bg-gradient-to-b from-[#002233] to-[#001522] ">
+      <div className="flex flex-col justify-center items-center p-6 sm:p-4 bg-gradient-to-b from-[#002233]/80 to-[#001522]/80 backdrop-blur-sm">
         <div className="w-full max-w-md space-y-8 z-20">
           {/* Logo Section */}
           <div className="text-center mb-8">
@@ -313,13 +324,13 @@ const SignUpPage = () => {
 
               {/* Link to Login Page */}
               <div className="text-center text-[#cdfdff]">
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-2 z-50"
                 >
                   <p>Already have an account? </p>
-                  <Link />
-                </a>
+                  <LucideLink color="#9afcff" /> {/* This is the Lucide icon */}
+                </Link>
               </div>
             </div>
           </form>
@@ -335,6 +346,6 @@ const SignUpPage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default SignUpPage;

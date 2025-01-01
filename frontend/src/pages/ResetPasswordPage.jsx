@@ -18,7 +18,9 @@ export default function ResetPassword() {
   } = useAuthStore();
 
   useEffect(() => {
-    verifyResetToken(token);
+    if (token) {
+      verifyResetToken(token);
+    }
   }, [token, verifyResetToken]);
 
   const handleSubmit = async (e) => {
@@ -46,7 +48,7 @@ export default function ResetPassword() {
 
   if (!isTokenValid) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-[#002233] to-[#001522] font-redhat">
+      <div className="min-h-screen flex justify-center items-center font-redhat">
         <div className="w-full max-w-md bg-[#0a2a3d] p-8 rounded-lg shadow-lg">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-red-400">Invalid or Expired Link</h2>
@@ -58,7 +60,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-[#002233] to-[#001522] font-redhat">
+    <div className="min-h-screen flex justify-center items-center font-redhat">
       <div className="w-full max-w-md bg-[#0a2a3d] p-8 rounded-lg shadow-lg">
         <div className="text-center mb-8">
           <div className="flex flex-col items-center gap-2 group">

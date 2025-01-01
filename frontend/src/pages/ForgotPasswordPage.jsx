@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Mail, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-[#002233] to-[#001522] font-redhat">
+    <div className="min-h-screen flex justify-center items-center font-redhat">
       <div className="w-full max-w-md bg-[#0a2a3d] p-8 rounded-lg shadow-lg">
         <div className="text-center mb-8">
           <div className="flex flex-col items-center gap-2 group">
@@ -86,12 +87,12 @@ const ForgotPasswordPage = () => {
                 )}
               </button>
               <div className="text-center text-[#cdfdff]">
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-2"
                 >
                   Back to Login
-                </a>
+                </Link>
               </div>
             </div>
           </form>

@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useState, useMemo, useCallback } from "react";
 import defaultavatar from "../assets/avatar.png";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const ProfilePage = () => {
   const { 
@@ -152,7 +153,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#002233] to-[#001522] text-[#cdfdff] p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen text-[#cdfdff] p-4 sm:p-6 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-[#012e3f]/70 rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-lg z-20">
 
@@ -308,10 +309,10 @@ const ProfilePage = () => {
             {/* Buttons Section */}
             <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row justify-end mt-4 items-center gap-4 z-50">
               <button className="w-full sm:w-auto px-4 py-2 bg-[#47e2ff] hover:bg-[#38b8d6] rounded-lg text-[#002233] transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSaving}>
-                <a href="/home" className="flex items-center justify-center">
+                <Link to="/" className="flex items-center justify-center">
                   <StepBack className="w-4 h-4 mr-2"/>
                   <span>Go Back</span>
-                </a>
+                </Link>
               </button>
 
               <button 

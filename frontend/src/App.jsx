@@ -12,41 +12,52 @@ import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import { useSettingsStore } from "./store/useSettingsStore.js";
 
 const App = () => {
   const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
+  const { fetchSettings } = useSettingsStore();
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  },[checkAuth]);
 
-  console.log({authUser});
+  useEffect(() => {
+    if (authUser) {
+      fetchSettings();
+    }
+  }, [authUser, fetchSettings]);
 
   if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
         <LoaderCircleIcon className="animate-spin size-10" />
-
       </div>
     );
   }
 
   return (
-    <div>
-      <Navbar />
-      <Waves className="-z-50"/>
-      <Routes>
-        <Route path="/" element={ authUser ? <HomePage /> : <Navigate to="/login"/> } />
-        <Route path="/signup" element={ !authUser ? <SignUpPage /> : <Navigate to="/" />} />
-        <Route path="/login" element={ !authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/profile" element={ authUser ? <ProfilePage className="z-50" /> : <Navigate to="/login"/> } />
-        <Route path="/forgot-password" element={ !authUser ? <ForgotPasswordPage /> : <Navigate to="/login" />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordPage /> } />
-      </Routes>   
+    <div className="relative min-h-screen">
+      <div className="fixed inset-0 pointer-events-none">
+        <Waves />
+      </div>
+      <div className="relative z-10">
+        <Navbar />
+        <main>
+          <Routes>
+            <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login"/>} />
+            <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+            <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login"/>} />
+            <Route path="/forgot-password" element={!authUser ? <ForgotPasswordPage /> : <Navigate to="/login" />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          </Routes>
+        </main>
+      </div>
       <Toaster />
     </div>
-  )
-}
+  );
+};
 
 export default App;
