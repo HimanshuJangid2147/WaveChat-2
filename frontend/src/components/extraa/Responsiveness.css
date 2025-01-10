@@ -1,0 +1,58 @@
+/* Base styles for auth pages */
+.auth-container {
+  min-height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 768px) {
+  .auth-container {
+    min-height: calc(100vh + 4rem); /* Add extra space for scrolling */
+    padding-bottom: 4rem; /* Prevent content from being cut off */
+  }
+
+  .form-wrapper {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .password-fields {
+    flex-direction: column;
+  }
+
+  .form-footer {
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Specific fixes for smaller screens */
+@media screen and (max-width: 640px) {
+  .auth-container {
+    min-height: calc(100vh + 6rem);
+  }
+
+  .gender-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-container {
+    padding: 1rem;
+  }
+}
+
+/* Fix for iOS Safari viewport height issue */
+@supports (-webkit-touch-callout: none) {
+  .auth-container {
+    min-height: -webkit-fill-available;
+  }
+}

@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users, Search } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ onClose }) => {
   const {
     getUsers,
     users,
@@ -31,7 +31,6 @@ const Sidebar = () => {
     getUsers();
   }, [getUsers]);
 
-  // subscription to profile updates
   useEffect(() => {
     subscribeToProfileUpdates();
     return () => unsubscribeFromProfileUpdates();
@@ -46,14 +45,17 @@ const Sidebar = () => {
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setMessageAsRead(user._id);
+    if (window.innerWidth < 768) {
+      onClose?.();
+    }
   };
 
   if (isUserLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="min-h-screen flex flex-col">
-      {/* Header Section */}
-      <div className="p-4 space-y-4">
+    <div className="h-full flex flex-col bg-[#001823]">
+      {/* Fixed Header Section */}
+      <div className="flex-none p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Users className="w-6 h-6 text-[#4a9eff]" />
@@ -89,59 +91,63 @@ const Sidebar = () => {
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-[#0a2a3d]" />
+      <div className="flex-none h-px bg-[#0a2a3d]" />
 
-      {/* Users List */}
-      <div className="flex-1 overflow-y-auto py-2">
-        {filteredUsers.map((user) => (
-          <button
-            key={user._id}
-            onClick={() => handleUserSelect(user)}
-            className={`
-              w-full px-4 py-3 flex items-center gap-3 transition-colors
-              hover:bg-[#002437] relative
-              ${selectedUser?._id === user._id ? "bg-[#002437]" : ""}
-            `}
-          >
-            <div className="relative">
-              <img
-                src={user.profilePic || "/avatar.png"}
-                alt={user.username}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              {onlineUsers.includes(user._id) && (
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#001824]" />
-              )}
-            </div>
-
-            <div className="flex flex-col items-start flex-1">
-              <span className="text-white font-medium">{user.username}</span>
-              <span
-                className={`text-sm ${
-                  onlineUsers.includes(user._id)
-                    ? "text-emerald-500"
-                    : "text-gray-400"
-                }`}
-              >
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
-              </span>
-            </div>
-
-            {unreadMessages[user._id] > 0 && (
-              <div className="bg-[#4a9eff] text-white text-xs font-medium rounded-full px-2 py-1 min-w-[20px]">
-                {unreadMessages[user._id]}
+      {/* Scrollable Users List */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="py-2">
+          {filteredUsers.map((user) => (
+            <button
+              key={user._id}
+              onClick={() => handleUserSelect(user)}
+              className={`
+                w-full px-4 py-3 flex items-center gap-3 transition-colors
+                hover:bg-[#002437] relative
+                ${selectedUser?._id === user._id ? "bg-[#002437]" : ""}
+              `}
+            >
+              <div className="relative flex-shrink-0">
+                <img
+                  src={user.profilePic || "/avatar.png"}
+                  alt={user.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                {onlineUsers.includes(user._id) && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#001824]" />
+                )}
               </div>
-            )}
-          </button>
-        ))}
 
-        {filteredUsers.length === 0 && (
-          <div className="text-center text-gray-400 py-4">
-            No contacts found
-          </div>
-        )}
+              <div className="flex flex-col items-start justify-center flex-1 min-w-0 text-left">
+                <span className="text-white font-medium truncate w-full text-left">
+                  {user.username}
+                </span>
+                <span
+                  className={`text-sm ${
+                    onlineUsers.includes(user._id)
+                      ? "text-emerald-500"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                </span>
+              </div>
+
+              {unreadMessages[user._id] > 0 && (
+                <div className="bg-[#4a9eff] text-white text-xs font-medium rounded-full px-2 py-1 min-w-[20px] flex-shrink-0">
+                  {unreadMessages[user._id]}
+                </div>
+              )}
+            </button>
+          ))}
+
+          {filteredUsers.length === 0 && (
+            <div className="text-center text-gray-400 py-4">
+              No contacts found
+            </div>
+          )}
+        </div>
       </div>
-    </aside>
+    </div>
   );
 };
 

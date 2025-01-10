@@ -57,7 +57,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-redhat z-10 relative">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-redhat z-10 relative lg:overflow-hidden overflow-y-auto">
       {/* Left Auth Section */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-4 bg-gradient-to-b from-[#002233]/80 to-[#001522]/80 backdrop-blur-sm ">
         <div className="w-full max-w-md space-y-8">

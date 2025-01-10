@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import AuthImagePattern from "../components/AuthImagePattern.jsx";
 import toast from "react-hot-toast";
+import "../components/extraa/Responsiveness.css"
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -65,10 +66,10 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 font-redhat relative z-10">
+    <div className="auth-container grid grid-cols-1 lg:grid-cols-2 font-redhat">
       {/* left side */}
-      <div className="flex flex-col justify-center items-center p-6 sm:p-4 bg-gradient-to-b from-[#002233]/80 to-[#001522]/80 backdrop-blur-sm">
-        <div className="w-full max-w-md space-y-8 z-20">
+      <div className="flex flex-col justify-center items-center p-6 bg-gradient-to-b from-[#002233]/80 to-[#001522]/80 backdrop-blur-sm">
+        <div className="form-container space-y-6">
           {/* Logo Section */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
@@ -88,7 +89,7 @@ const SignUpPage = () => {
           </div>
 
           {/* Form Section */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="form-wrapper space-y-6">
             {/* Full Name */}
             <div className="form-control">
               <label className="label" htmlFor="fullName">
@@ -177,8 +178,8 @@ const SignUpPage = () => {
             {/* Gender Selection */}
             <div className="form-control">
               <fieldset>
-                <legend className="label-text text-[#cdfdff]">Gender:</legend>
-                <div className="flex gap-4">
+                <legend className="label-text text-[#cdfdff] mb-2">Gender:</legend>
+                <div className="gender-selection flex gap-4 mt-2">
                   {[
                     { value: "male", label: "Male" },
                     { value: "female", label: "Female" },
@@ -207,7 +208,7 @@ const SignUpPage = () => {
             </div>
 
             {/* Password Fields */}
-            <div className="flex gap-4">
+            <div className="password-fields flex gap-4">
               {/* Password */}
               <div className="form-control">
                 <label className="label" htmlFor="password">
@@ -305,12 +306,12 @@ const SignUpPage = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="flex flex-col gap-4">
+            <div className="form-footer flex flex-col gap-4">
               <button
                 type="submit"
-                className="w-full rounded-lg py-2 px-4 text-[#cdfdff] border border-slate-400
-                  hover:bg-transparent bg-[#0a2a3d] focus:outline-none focus:ring-2 focus:ring-primary/40
-                  disabled:cursor-not-allowed"
+                className="w-full rounded-lg py-3 px-4 text-[#cdfdff] border border-slate-400
+                          hover:bg-transparent bg-[#0a2a3d] focus:outline-none focus:ring-2 focus:ring-primary/40
+                          disabled:cursor-not-allowed"
                 disabled={isSigningUp}
               >
                 {isSigningUp ? (
@@ -326,7 +327,7 @@ const SignUpPage = () => {
               <div className="text-center text-[#cdfdff]">
                 <Link
                   to="/login"
-                  className="font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-2 z-50"
+                  className="font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-2"
                 >
                   <p>Already have an account? </p>
                   <LucideLink color="#9afcff" /> {/* This is the Lucide icon */}
